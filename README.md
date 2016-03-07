@@ -1,6 +1,8 @@
 # hydro-vimrc
 A hydroelectric power vimrc. Efficient and environmental friendly.
 
+Well, this is basically vimrc that I created to help myself, most of the settings are from various vim experts. 
+
 ### Installation Steps
 1. Install [vim-plug](https://github.com/junegunn/vim-plug) (skip this if you already have this)
 
