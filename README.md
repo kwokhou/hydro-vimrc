@@ -18,3 +18,7 @@ Well, this is basically vimrc that I created to help myself, most of the setting
   ```
 
 3. Run `:PlugInstall` from within vim to install plugins
+
+### License
+
+This project is released under **The MIT License**
