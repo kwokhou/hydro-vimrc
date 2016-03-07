@@ -13,7 +13,7 @@ die() {
 [ -e "$VIMRC_HOME/vimrc" ] && die "$VIMRC_HOME/vimrc already exists."
 [ -e "~/.vimrc" ] && die "~/.vimrc already exists."
 
-git clone git@github.com:kwokhou/hydro-vimrc.git "$VIMRC_HOME"
+git clone https://github.com/kwokhou/hydro-vimrc.git "$VIMRC_HOME"
 
 cd "$VIMRC_HOME"
 
