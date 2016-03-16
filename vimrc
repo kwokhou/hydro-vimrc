@@ -138,9 +138,10 @@ nnoremap Q @q
 " Quicker way to go between previous and next buffer
 nnoremap H :bprevious<CR>
 nnoremap L :bnext<CR>
+nnoremap <silent> <leader>x :bdelete<CR>
 
 " Switch CWD to the directory of the open buffer
-nnoremap <leader>cd :cd %:p:h<CR>:pwd<cr>
+nnoremap <leader>cd :cd %:p:h<CR>:pwd<CR>
 
 " Return to last edit position when opening files (You want this!)
 au BufReadPost *
@@ -508,8 +509,9 @@ call plug#end()
 """""""""""""""""""""""""""""""""""""
 
 " Show NERDTree when vim starts
-autocmd vimenter * NERDTree
+" autocmd vimenter * NERDTree
 
+" Show NERDTree when vim starts when no files were specified
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
@@ -520,6 +522,6 @@ let g:NERDTreeMapActivateNode="<F3>"
 let g:NERDTreeMapPreview="<F4>"
 
 " Toggle NERDTree, similar with SublimeText or VS Code
-map <silent> <C-t> :NERDTreeToggle<CR>
+map <silent> <c-t> :NERDTreeToggle<CR>
 " Show current file in NERDTree
 map <silent> <F3> :NERDTreeFind<CR>
