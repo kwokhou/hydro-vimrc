@@ -158,7 +158,8 @@ nnoremap Y y$
 " Deleting char with x will not overwrite content of the 0 register
 nnoremap x "_x
 
-" Faster reload $MYVIMRC
+" Faster edit & reload $MYVIMRC
+nmap <silent> <leader>ev :e $MYVIMRC<CR>
 nmap <silent> <leader>re :so $MYVIMRC<CR>
 
 """""""""""""""""""""""""""""
@@ -516,10 +517,10 @@ call plug#end()
 " autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
 " Configure NERDTree behavior when entering buffer
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+" autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
-let g:NERDTreeMapActivateNode="<F3>"
-let g:NERDTreeMapPreview="<F4>"
+" let g:NERDTreeMapActivateNode="<F3>"
+" let g:NERDTreeMapPreview="<F4>"
 
 " Toggle NERDTree, similar with SublimeText or VS Code
 map <silent> <c-t> :NERDTreeToggle<CR>
