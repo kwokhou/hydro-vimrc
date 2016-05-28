@@ -10,6 +10,7 @@ endif
 if !empty(&viminfo)
   set viminfo^=!
 endif
+
 set sessionoptions-=options
 
 if has('path_extra')
@@ -130,9 +131,9 @@ endif
 """""""""""""""""""""""""
 set statusline=\ %{HasPaste()}%F%m%r%h\ %w\ \ cwd:\ %r%{getcwd()}%h\ \ [line:\ %l\/%L]\ \ %y\ \ [%{v:register}]
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""
 " => Temporary files, backups and undo
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""
 " Turn off backup and swp
 set nobackup
 set nowb
@@ -142,15 +143,13 @@ set noswapfile
 set undodir=~/.vim_undodir
 set undofile
 
-" Use spaces instead of tabs
-set expandtab
-
 " Enable smarttab
 set smarttab
 
-" Set tab as 2 spaces (following Ruby community standard)
+" Set tab as 2 spaces
+set expandtab
 set shiftwidth=2
-set tabstop=2
+set softtabstop=2
 
 " Linebreak on 500 characters
 set lbr
@@ -160,10 +159,9 @@ set ai "Auto indent
 set si "Smart indent
 set wrap "Wrap lines
 
-" Super usefull visual mode mapping for search
-vnoremap <silent> * :call VisualSelection('f', '')<CR>
-vnoremap <silent> # :call VisualSelection('b', '')<CR>
-
+"""""""""""""""""""""""""""""""""""""""""
+" => Editing & mappings
+"""""""""""""""""""""""""""""""""""""""""
 " Treat long lines as break lines (useful when moving around in them)
 nnoremap k gk
 nnoremap j gj
@@ -173,20 +171,6 @@ nnoremap <silent> <leader>/ :let @/="hey-vim-pleaseDisableHightlightNow"<CR>
 
 " Quick recoding playback; Record with 'qq' (this disable the Ex mode)
 nnoremap Q @q
-
-" Quicker way to go between previous and next buffer
-nnoremap H :bprevious<CR>
-nnoremap L :bnext<CR>
-nnoremap <silent> <leader>x :bdelete<CR>
-
-" Switch CWD to the directory of the open buffer
-nnoremap <leader>cd :cd %:p:h<CR>:pwd<CR>
-
-" Return to last edit position when opening files (You want this!)
-au BufReadPost *
-      \ if line("'\"") > 0 && line("'\"") <= line("$") |
-      \   exe "normal! g`\"" |
-      \ endif
 
 " Remap VIM 0 to first non-blank character
 nnoremap 0 ^
@@ -200,16 +184,78 @@ nnoremap x "_x
 " Delete all before the cursor
 inoremap <C-U> <C-G>u<C-U>
 
+" Super usefull visual mode mapping for search
+vnoremap <silent> * :call VisualSelection('f', '')<CR>
+vnoremap <silent> # :call VisualSelection('b', '')<CR>
+
 " Faster edit & reload $MYVIMRC
 nmap <silent> <leader>ev :e $MYVIMRC<CR>
 nmap <silent> <leader>re :so $MYVIMRC<CR>
 
-"""""""""""""""""""""""""""""
-" Filetype syntax mappings
-""""""""""""""""""""""""""""""
+" - Start - DISABLE VISUAL PASTE TO OVERWRITE REGISTER
+function! RestoreRegister()
+  let @" = s:restore_reg
+  return ''
+endfunction
+
+function! s:Repl()
+  let s:restore_reg = @"
+  return "p@=RestoreRegister()\<cr>"
+endfunction
+
+" This supports "rp that replaces the selection by the contents of @r
+vnoremap <silent> <expr> p <sid>Repl()
+" - End - DISABLE VISUAL PASTE TO OVERWRITE REGISTER
+
+"""""""""""""""""""""""""""""""""""""""""
+" => Buffers navigation
+"""""""""""""""""""""""""""""""""""""""""
+
+" Quicker way to go between previous and next buffer
+nnoremap H :bprevious<CR>
+nnoremap L :bnext<CR>
+
+" Faster way to move between windows
+nnoremap <silent> <C-j> <C-W><C-J>
+nnoremap <silent> <C-k> <C-W><C-K>
+nnoremap <silent> <C-h> <C-W><C-H>
+nnoremap <silent> <C-l> <C-W><C-L>
+
+" Close all other window
+nnoremap <silent> <leader>o :only<CR>
+
+" Delete current buffer
+nnoremap <silent> <leader>x :bdelete<CR>
+
+" Open netrw file explorer
+nnoremap <silent> <leader>f :Explore<CR>
+
+" Opens a new tab with the current buffer's path
+" Super useful when editing files in the same directory
+nnoremap <leader>ee :e <c-r>=expand("%:p:h")<CR>/
+
+" Switch CWD to the directory of the open buffer
+nnoremap <leader>cd :cd %:p:h<CR>:pwd<cr>
+
+" Close all buffers
+nnoremap <silent> <leader>ba :bufdo bd<CR>
+
+" Return to last edit position when opening files (You want this!)
+au BufReadPost *
+      \ if line("'\"") > 0 && line("'\"") <= line("$") |
+      \   exe "normal! g`\"" |
+      \ endif
+
+nnoremap K :echo 'Shift-K: Nothing happened!'<CR>
+
+
+"""""""""""""""""""""""""""""""""""""""""
+" => Filetype syntax mappings
+"""""""""""""""""""""""""""""""""""""""""
 au BufRead,BufNewFile *.config set filetype=xml
 au BufRead,BufNewFile *.cshtml set filetype=html
 au BufRead,BufNewFile *.ex,*.exs set filetype=elixir
+
 
 """""""""""""""""""""""""""""""""""""""""
 " => Misc
@@ -237,15 +283,33 @@ command! RemoveWindowsMEncoding %s/^V^M/^V^M/g
 " Replace all line ending to linux format
 command! FixLineEndingToLinuxFormat %s/\r//g
 
+
 """"""""""""""""""""""""""""""""""""""
-" Usefull functions
+" => Usefull functions
 """"""""""""""""""""""""""""""""""""""
+function! ToggleVerbose()
+    if !&verbose
+        set verbosefile=~/.log/vim/verbose.log
+        set verbose=15
+    else
+        set verbose=0
+        set verbosefile=
+    endif
+call plug#end()
+endfunction
+
+function! CmdLine(str)
+  exe "menu Foo.Bar :" . a:str
+  emenu Foo.Bar
+  unmenu Foo
+endfunction
 
 " Helper function for visual selection related stuff
 function! VisualSelection(direction, extra_filter) range
   let l:saved_reg = @"
   execute "normal! vgvy"
 
+call plug#end()
   let l:pattern = escape(@", '\\/.*$^~[]')
   let l:pattern = substitute(l:pattern, "\n$", "", "")
 
@@ -271,12 +335,11 @@ function! HasPaste()
     return ''
 endfunction
 
+
 """"""""""""""""""""""""""""""""""""""
-" Configure plugins
+" => Configure plugins
 """"""""""""""""""""""""""""""""""""""
 call plug#begin('~/.vim/plugged')
-
-Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 
 " ctrl-n to behave like ctrl-d in sublime
 Plug 'terryma/vim-multiple-cursors'
@@ -286,12 +349,24 @@ Plug 'terryma/vim-multiple-cursors'
 " gc, gc - Comment current line
 Plug 'tpope/vim-commentary'
 
+" Enable repeating supported plugin to maps with '.'
+Plug 'tpope/vim-repeat'
+
 " normal mode - inside a surround - 'cs' to change surround, e.g. cs'"
 " visual mode - selected text - 'S' to 'surround' of a text
 Plug 'tpope/vim-surround'
 
+" Add support to Ruby language
+Plug 'vim-ruby/vim-ruby'
+
 " Rails power tools
 Plug 'tpope/vim-rails'
+
+" Rails slim template engine support
+Plug 'slim-template/vim-slim'
+
+" Help auto input ending tag
+Plug 'tpope/vim-endwise'
 
 " Search for, substitute, and abbreviate multiple variants of a word 
 Plug 'tpope/vim-abolish'
@@ -299,16 +374,82 @@ Plug 'tpope/vim-abolish'
 " Small wrapper around bundle
 Plug 'tpope/vim-bundler'
 
+" Best Git wrapper of all time
+Plug 'tpope/vim-fugitive'
+
 " html5 autocomplete and syntax
 Plug 'othree/html5.vim'
 
-call plug#end()
+" Better autocomplete support
+Plug 'Valloric/YouCompleteMe'
 
 """""""""""""""""""""""""""""""""""""
 " => NERDTree configurations
 """""""""""""""""""""""""""""""""""""
+Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 
 " Toggle NERDTree, similar with SublimeText or VS Code
 map <silent> <c-t> :NERDTreeToggle<CR>
+
 " Show current file in NERDTree
 map <silent> <F3> :NERDTreeFind<CR>
+
+" ------------------------------------------
+"  => CtrlP configs
+" ------------------------------------------
+Plug 'ctrlpvim/ctrlp.vim'
+
+" Ctrl-M to show most resently edited files
+nmap <silent> <leader>m :CtrlPMRUFiles<CR>
+
+" CtrlP uses ag instead of ack
+if exists("g:ctrlp_user_command")
+  unlet g:ctrlp_user_command
+endif
+
+" ------------------------------------------
+"  => Ag configs
+" ------------------------------------------
+" Vim frontend for Ag - the_silver_searcher
+Plug 'rking/ag.vim'
+
+let g:ag_working_path_mode="r"
+if executable('ag')
+  " Use ag over grep
+  set grepprg=ag\ --nogroup\ --nocolor
+  " Use ag in CtrlP & respects rules in .gitignore
+  let g:ctrlp_user_command = 'ag %s --files-with-matches -g "" --ignore "\.git$\|\.hg$\|\.svn$"'
+  " Ag is fast enough that CtrlP doesn't need to cache
+  let g:ctrlp_use_caching = 0
+else
+  let g:ctrlp_custom_ignore = {
+        \ 'dir':  '\v[\/](\.(git|hg|svn)|\Debug|\Release|node_modules|packages|jspm_packages|bower_components)$',
+        \ 'file': '\v\.(exe|pyc|so|dll|class|map)$',
+        \ }
+  let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files . --cached --exclude-standard --others']
+endif
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Ag searching and cope displaying
+"    requires ag.vim - it's much better than vimgrep/grep
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" When you press gv you Ag after the selected text
+vnoremap <silent> gv :call VisualSelection('gv', '')<CR>
+
+" Open Ag and put the cursor in the right position
+nmap <leader>ag :Ag
+
+" When you press <leader>r you can search and replace the selected text
+vnoremap <silent> <leader>r :call VisualSelection('replace', '')<CR>
+
+" To go to the next search result do:
+map <leader>cn :cn<CR>
+
+" To go to the previous search results do:
+map <leader>cp :cp<CR>
+
+" When you search with Ag, display your results in cope by doing:
+map <leader>cc :botright cope<CR>
+map <leader>co ggVGy:tabnew<CR>:set syntax=qf<cr>pg
+
+call plug#end()
