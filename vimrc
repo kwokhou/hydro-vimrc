@@ -30,9 +30,19 @@ if v:version > 703 || v:version == 703 && has("patch541")
 endif
 
 " Enable filetype plugins
-if has('autocmd')
-  filetype plugin indent on
+filetype plugin on
+
+"omni complate (default instal)"
+set omnifunc=syntaxcomplete#Complete
+
+if has("autocmd")
+  autocmd FileType ruby set omnifunc=rubycomplete#Complete
+  autocmd FileType ruby let g:rubycomplete_buffer_loading=1
+  autocmd FileType ruby let g:rubycomplete_classes_in_global=1
 endif
+
+" remap Ctrl-x Ctrl-o to Shift-Space
+imap <S-Space> <C-x><C-o>
 
 " Auto read file when file changed from outside
 set autoread
@@ -40,9 +50,8 @@ set autoread
 set ttimeout
 set ttimeoutlen=100
 
-
 " Perform autoread everytime switch buffer or forcus on vim
-au FocusGained,BufEnter * :silent! !
+" au FocusGained,BufEnter * :silent! !
 
 " Map leader for extra key combinations
 let mapleader = "\<space>"
@@ -54,9 +63,10 @@ nmap <leader>w :w!<CR>
 " Leave 7 lines of padding to top and bottom of editor when moving
 set so=7
 
-" Enable Wild menu, and ignore compiled files
+" Enable Wild menu, and ignore compiled & binary files
 set wildmenu
-set wildignore=*.o,*~,*.pyc
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip,.git,*.tar.gz,~*,*.tar.bz2,*.rar,*.o,*.pyc,*.hg,*/cache/*
+set wildignore+=*.bz,*.iso,*.o,*.obj,*.bak,*.exe,*.gz,*.jpeg,*.png,*.jpg,*.flw,*.mp4,*.tar,*.mp3,*.pdf,*.djvu
 
 " Always show current position
 set ruler
@@ -116,11 +126,6 @@ set encoding=utf8
 " Use Unix as the standard file type, and mac as 2nd choice...
 set ffs=unix,mac,dos
 
-" Allow color schemes to do bright colors without forcing bold.
-if &t_Co == 8 && $TERM !~# '^linux\|^Eterm'
-  set t_Co=16
-endif
-
 " Enable syntax highlighting
 if has('syntax') && !exists('g:syntax_on')
   syntax enable
@@ -129,7 +134,10 @@ endif
 """""""""""""""""""""""""
 " Format the status line
 """""""""""""""""""""""""
-set statusline=\ %{HasPaste()}%F%m%r%h\ %w\ \ cwd:\ %r%{getcwd()}%h\ \ [line:\ %l\/%L]\ \ %y\ \ [%{v:register}]
+set statusline=%{HasPaste()}\ %t%m%r%h%w\ %y\ \ enc:%{&enc}\ format:%{&ff}\ file:%{&fenc}\ %{fugitive#statusline()}%=\ (\ ch:%3b\ hex:%2B\ )\ col:%2c\ line:%2l/%L\ [%2p%%]
+
+" set statusline=\ %{HasPaste()}%F%m%r%h\ %w\ \ cwd:\ %r%{getcwd()}%h\ \ [line:\ %l\/%L]\ \ %y\ \ [%{v:register}]
+
 
 """""""""""""""""""""""""""""""""""""""
 " => Temporary files, backups and undo
@@ -330,7 +338,7 @@ endfunction
 " Returns true if paste mode is enabled
 function! HasPaste()
     if &paste
-        return 'PASTE MODE  '
+        return '[PASTE MODE]'
     endif
     return ''
 endfunction
@@ -377,22 +385,24 @@ Plug 'tpope/vim-bundler'
 " Best Git wrapper of all time
 Plug 'tpope/vim-fugitive'
 
-" html5 autocomplete and syntax
+" html5 omnicomplete and syntax
 Plug 'othree/html5.vim'
 
-" Better autocomplete support
-Plug 'Valloric/YouCompleteMe'
 
 """""""""""""""""""""""""""""""""""""
 " => NERDTree configurations
 """""""""""""""""""""""""""""""""""""
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 
+let g:NERDTreeStatusline = "%{ getcwd() }"
+let g:NERDTreeIgnore=['\.pyc', '\~$','\.chm*','\.exe*', '\.swo$', '\.swp$', '\.git', '\.hg', '\.svn', '\.bzr', '\.iso', '\.tar$','\.pdf','\.rar$','\.doc$','\.docx','\.xls$','\.xlsx', '\.djvu$', '\.tar\.gz', '\.tar\.bz2', '.tar.bz', '\.jpg$', '\.jpeg$', '\.o$','\.mp3$' ]
+
 " Toggle NERDTree, similar with SublimeText or VS Code
 map <silent> <c-t> :NERDTreeToggle<CR>
 
 " Show current file in NERDTree
 map <silent> <F3> :NERDTreeFind<CR>
+
 
 " ------------------------------------------
 "  => CtrlP configs
